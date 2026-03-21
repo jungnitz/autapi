@@ -1,0 +1,12 @@
+---
+source: autapi/src/openapi/mod.rs
+expression: "serde_json::from_value::<Extensions>(json!({\n    \"x-foo\": 42, \"bar\": \"nowhere\", \"x-foobar\": \"ok\",\n}))"
+---
+Ok(
+    Extensions(
+        {
+            "foo": Number(42),
+            "foobar": String("ok"),
+        },
+    ),
+)

@@ -1,0 +1,15 @@
+---
+source: autapi/src/schema/impls/arrays.rs
+expression: "serde_json::from_value::<SerdeAdapter<LinkedList<String>>>(json!([\"this\",\n\"is\", \"a\", \"linked\", \"list\"]))"
+---
+Ok(
+    SerdeAdapter(
+        [
+            "this",
+            "is",
+            "a",
+            "linked",
+            "list",
+        ],
+    ),
+)

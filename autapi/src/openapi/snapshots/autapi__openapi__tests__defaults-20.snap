@@ -1,0 +1,7 @@
+---
+source: autapi/src/openapi/mod.rs
+expression: "Tag::new(\"name\".to_owned())"
+---
+{
+  "name": "name"
+}

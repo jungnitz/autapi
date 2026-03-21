@@ -1,0 +1,11 @@
+---
+source: autapi/src/schema/impls/arrays.rs
+expression: "HashSet::<i64>::schema(&mut Registry::default())"
+---
+{
+  "type": "array",
+  "items": {
+    "type": "integer",
+    "format": "int64"
+  }
+}

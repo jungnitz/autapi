@@ -1,0 +1,8 @@
+---
+source: autapi/src/openapi/mod.rs
+expression: "SecurityScheme::new(SecuritySchemeType::Http(HttpSecurityScheme::new(\"scheme\".to_owned())))"
+---
+{
+  "type": "http",
+  "scheme": "scheme"
+}

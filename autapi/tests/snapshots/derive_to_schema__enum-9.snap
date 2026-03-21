@@ -1,0 +1,11 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "serde_json::from_value::<SerdeAdapter<Enum>>(json!({\n    \"tag\": \"namedFields\", \"FooBar\": 32\n}))"
+---
+Ok(
+    SerdeAdapter(
+        NamedFields {
+            foo_bar: 32,
+        },
+    ),
+)

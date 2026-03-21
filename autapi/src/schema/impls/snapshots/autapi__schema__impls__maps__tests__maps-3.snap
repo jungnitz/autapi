@@ -1,0 +1,12 @@
+---
+source: autapi/src/schema/impls/maps.rs
+expression: "serde_json::from_value::<SerdeAdapter<BTreeMap<String,\ni32>>>(json!({ \"two\": 2, \"three\": 3, }))"
+---
+Ok(
+    SerdeAdapter(
+        {
+            "three": 3,
+            "two": 2,
+        },
+    ),
+)

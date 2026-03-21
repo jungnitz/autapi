@@ -1,0 +1,7 @@
+---
+source: autapi/src/openapi/mod.rs
+expression: "Ref::new(\"ref\".to_owned())"
+---
+{
+  "$ref": "ref"
+}

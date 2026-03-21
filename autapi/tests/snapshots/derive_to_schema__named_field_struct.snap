@@ -1,0 +1,45 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "Fields::schema(&mut Registry::default())"
+---
+{
+  "type": "object",
+  "properties": {
+    "Foo": {
+      "type": "integer",
+      "format": "int64",
+      "description": "A simple field."
+    },
+    "Inlined": {
+      "type": "boolean",
+      "description": "An automatically inlined value."
+    },
+    "ReferencedOptional": {
+      "$ref": "#/components/schemas/OptionalValue",
+      "description": "This should be a reference and optional!"
+    },
+    "ReferencedOptionalInline": {
+      "type": "boolean",
+      "description": "This should be optional and not a reference."
+    },
+    "Type": {
+      "type": "boolean",
+      "title": "Title",
+      "description": "What happens when we use a raw identifier?",
+      "examples": [
+        true
+      ]
+    },
+    "baz": {
+      "type": "string",
+      "description": "This field should be renamed to baz!"
+    }
+  },
+  "required": [
+    "Foo",
+    "baz",
+    "Type",
+    "Inlined"
+  ],
+  "description": "An exemplary named field struct."
+}

@@ -1,0 +1,10 @@
+---
+source: autapi/src/openapi/mod.rs
+expression: "SecurityScheme::new(SecuritySchemeType::Oauth2(Oauth2SecurityScheme\n{\n    flows: OAuthFlows\n    { implicit: Some(OAuthFlow::default()), ..Default::default() },\n    ..Oauth2SecurityScheme::default()\n}))"
+---
+{
+  "type": "oauth2",
+  "flows": {
+    "implicit": {}
+  }
+}

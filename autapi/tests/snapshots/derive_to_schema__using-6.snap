@@ -1,0 +1,9 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "UsingTupleStruct::schema(&mut Registry::default())"
+---
+{
+  "type": "integer",
+  "format": "int64",
+  "description": "Optional integer."
+}

@@ -1,0 +1,7 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "SerdeAdapter(OptionalField { field: String::from(\"str\") })"
+---
+{
+  "field": "str"
+}

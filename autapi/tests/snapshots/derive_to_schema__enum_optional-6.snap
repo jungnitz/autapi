@@ -1,0 +1,10 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "SerdeAdapter(UseEnum { value: Enum::Str { val: \"val_string\".to_owned() } })"
+---
+{
+  "value": {
+    "tag": "Str",
+    "val": "val_string"
+  }
+}

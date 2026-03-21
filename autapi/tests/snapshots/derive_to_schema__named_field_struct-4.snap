@@ -1,0 +1,7 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "serde_json::from_value::<SerdeAdapter<Fields>>(json!({\n    \"baz\": \"I_AM_BAZ!\", \"Type\": true, \"ReferencedOptional\": false, \"Inlined\":\n    true\n}))"
+---
+Err(
+    Error("missing property `Foo`", line: 0, column: 0),
+)

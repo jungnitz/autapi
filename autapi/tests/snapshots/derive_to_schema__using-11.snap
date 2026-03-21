@@ -1,0 +1,5 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "SerdeAdapter(UsingEnum::Tuple(Nullable(Some(42))))"
+---
+42

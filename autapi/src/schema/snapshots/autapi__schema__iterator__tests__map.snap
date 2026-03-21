@@ -1,0 +1,8 @@
+---
+source: autapi/src/schema/iterator.rs
+expression: "SerdeAdapter(IteratorMap::new(&mut iter))"
+---
+{
+  "a": 1,
+  "b": 2
+}

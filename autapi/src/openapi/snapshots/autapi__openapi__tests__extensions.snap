@@ -1,0 +1,8 @@
+---
+source: autapi/src/openapi/mod.rs
+expression: "Extensions(Map::from_iter([(String::from(\"foo\"), json!(\"value\")),\n(String::from(\"bar\"), json!(42))]))"
+---
+{
+  "x-bar": 42,
+  "x-foo": "value"
+}

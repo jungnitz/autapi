@@ -1,0 +1,5 @@
+---
+source: autapi/src/openapi/mod.rs
+expression: "Responses::default()"
+---
+{}

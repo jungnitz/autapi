@@ -1,0 +1,13 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "serde_json::from_value::<SerdeAdapter<UsingEnum>>(json!({}))"
+---
+Ok(
+    SerdeAdapter(
+        Fields {
+            value: Nullable(
+                None,
+            ),
+        },
+    ),
+)

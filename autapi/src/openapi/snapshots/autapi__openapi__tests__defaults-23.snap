@@ -1,0 +1,9 @@
+---
+source: autapi/src/openapi/mod.rs
+expression: "SecurityScheme::new(SecuritySchemeType::ApiKey(ApiKeySecurityScheme::Cookie(\"cookie_name\".to_owned())))"
+---
+{
+  "type": "apiKey",
+  "in": "cookie",
+  "name": "cookie_name"
+}

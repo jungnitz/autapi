@@ -1,0 +1,7 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "serde_json::from_value::<SerdeAdapter<UnitStruct>>(json!({}))"
+---
+Err(
+    Error("invalid type: map, expected unit", line: 0, column: 0),
+)

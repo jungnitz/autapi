@@ -1,0 +1,7 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "serde_json::from_value::<SerdeAdapter<Enum>>(json!(\"Invalid\"))"
+---
+Err(
+    Error("data did not match any variant of untagged enum __autapi_Value", line: 0, column: 0),
+)

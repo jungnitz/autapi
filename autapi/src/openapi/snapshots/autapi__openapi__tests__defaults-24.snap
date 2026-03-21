@@ -1,0 +1,8 @@
+---
+source: autapi/src/openapi/mod.rs
+expression: "SecurityScheme::new(SecuritySchemeType::Oauth2(Oauth2SecurityScheme::default()))"
+---
+{
+  "type": "oauth2",
+  "flows": {}
+}

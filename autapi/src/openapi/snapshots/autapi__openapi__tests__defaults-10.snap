@@ -1,0 +1,8 @@
+---
+source: autapi/src/openapi/mod.rs
+expression: "Parameter::new(\"name\".to_owned(), ParameterIn::Cookie)"
+---
+{
+  "name": "name",
+  "in": "cookie"
+}

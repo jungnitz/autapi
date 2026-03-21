@@ -1,0 +1,8 @@
+---
+source: autapi/src/openapi/mod.rs
+expression: "SecurityScheme::new(SecuritySchemeType::OpenIdConnect(OpenIdConnectSecurityScheme::new(\"/url\".to_owned())))"
+---
+{
+  "type": "openIdConnect",
+  "openIdConnectUrl": "/url"
+}

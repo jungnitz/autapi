@@ -1,0 +1,7 @@
+---
+source: autapi/src/openapi/mod.rs
+expression: "Response::default()"
+---
+{
+  "description": ""
+}

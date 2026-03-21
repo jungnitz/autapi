@@ -1,0 +1,11 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "Enum::deserialize_missing()"
+---
+Some(
+    Thing(
+        OptionalValue(
+            None,
+        ),
+    ),
+)

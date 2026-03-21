@@ -1,0 +1,12 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "Enum::schema(&mut Registry::default())"
+---
+{
+  "type": "string",
+  "enum": [
+    "Val1",
+    "Val2"
+  ],
+  "description": "A unit-only enum"
+}

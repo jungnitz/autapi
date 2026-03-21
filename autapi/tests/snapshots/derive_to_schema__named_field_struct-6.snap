@@ -1,0 +1,7 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "serde_json::from_value::<SerdeAdapter<Fields>>(json!({\n    \"Foo\": 42, \"baz\": \"I_AM_BAZ!\", \"Type\": true, \"ReferencedOptional\": null,\n    \"Inlined\": true\n}))"
+---
+Err(
+    Error("invalid type: null, expected a boolean", line: 0, column: 0),
+)

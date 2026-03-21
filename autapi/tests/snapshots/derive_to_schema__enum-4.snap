@@ -1,0 +1,8 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "SerdeAdapter(Enum::Another { bar_foo: 42 })"
+---
+{
+  "tag": "AnOtHeR",
+  "BAR_FOO": 42
+}

@@ -1,0 +1,7 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "SerdeAdapter(UsingStruct { value: Nullable(Some(42)), })"
+---
+{
+  "value": 42
+}

@@ -1,0 +1,32 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "Enum::schema(&mut Registry::default())"
+---
+{
+  "anyOf": [
+    {
+      "type": "object",
+      "properties": {
+        "tag": {
+          "type": "string",
+          "enum": [
+            "Str"
+          ]
+        },
+        "val": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "val",
+        "tag"
+      ]
+    },
+    {
+      "$ref": "#/components/schemas/OptionalValue"
+    },
+    {
+      "$ref": "#/components/schemas/OptionalValue"
+    }
+  ]
+}

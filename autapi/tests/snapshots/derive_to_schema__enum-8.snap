@@ -1,0 +1,13 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "serde_json::from_value::<SerdeAdapter<Enum>>(json!({\n    \"tag\": \"struct\", \"thing\": true\n}))"
+---
+Ok(
+    SerdeAdapter(
+        Struct(
+            NamedFieldsStruct {
+                thing: true,
+            },
+        ),
+    ),
+)

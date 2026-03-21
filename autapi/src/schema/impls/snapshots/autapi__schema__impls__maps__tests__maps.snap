@@ -1,0 +1,14 @@
+---
+source: autapi/src/schema/impls/maps.rs
+expression: "HashMap::<String, i64>::schema(&mut Registry::default())"
+---
+{
+  "type": "object",
+  "propertyNames": {
+    "type": "string"
+  },
+  "additionalProperties": {
+    "type": "integer",
+    "format": "int64"
+  }
+}

@@ -1,0 +1,7 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "serde_json::from_value::<SerdeAdapter<Fields>>(json!({\n    \"Foo\": 42, \"baz\": \"I_AM_BAZ!\", \"Type\": true, \"Inlined\": true,\n    \"ExtraField\": 1.0,\n}))"
+---
+Err(
+    Error("unknown field `ExtraField`, expected one of `Foo`, `baz`, `Type`, `ReferencedOptional`, `ReferencedOptionalInline`, `Inlined`", line: 0, column: 0),
+)

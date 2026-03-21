@@ -1,0 +1,23 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "UsingEnum::schema(&mut Registry::default())"
+---
+{
+  "anyOf": [
+    {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "format": "int64",
+          "description": "optional int value in named fields"
+        }
+      }
+    },
+    {
+      "type": "integer",
+      "format": "int64",
+      "description": "optional int"
+    }
+  ]
+}

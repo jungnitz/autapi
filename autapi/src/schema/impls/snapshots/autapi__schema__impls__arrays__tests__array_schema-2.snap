@@ -1,0 +1,10 @@
+---
+source: autapi/src/schema/impls/arrays.rs
+expression: "LinkedList::<String>::schema(&mut Registry::default())"
+---
+{
+  "type": "array",
+  "items": {
+    "type": "string"
+  }
+}

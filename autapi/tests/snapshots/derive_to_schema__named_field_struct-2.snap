@@ -1,0 +1,11 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: SerdeAdapter(dummy_value)
+---
+{
+  "Foo": 42,
+  "baz": "I_AM_BAZ!",
+  "Type": true,
+  "ReferencedOptionalInline": true,
+  "Inlined": false
+}

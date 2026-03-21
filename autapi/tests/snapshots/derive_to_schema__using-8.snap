@@ -1,0 +1,15 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "serde_json::from_value::<SerdeAdapter<UsingTupleStruct>>(json!(42))"
+---
+Ok(
+    SerdeAdapter(
+        UsingTupleStruct(
+            Nullable(
+                Some(
+                    42,
+                ),
+            ),
+        ),
+    ),
+)

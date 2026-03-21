@@ -1,0 +1,11 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "serde_json::from_value::<SerdeAdapter<OptionalField>>(json!({\"field\": \"str\"}))"
+---
+Ok(
+    SerdeAdapter(
+        OptionalField {
+            field: "str",
+        },
+    ),
+)

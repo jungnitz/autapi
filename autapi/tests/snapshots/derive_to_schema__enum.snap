@@ -1,0 +1,82 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "Enum::schema(&mut Registry::default())"
+---
+{
+  "anyOf": [
+    {
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "tag": {
+              "type": "string",
+              "enum": [
+                "struct"
+              ]
+            }
+          },
+          "required": [
+            "tag"
+          ]
+        },
+        {
+          "$ref": "#/components/schemas/NamedFieldsStruct"
+        }
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "FooBar": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "tag": {
+          "type": "string",
+          "enum": [
+            "namedFields"
+          ]
+        }
+      },
+      "required": [
+        "FooBar",
+        "tag"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "BAR_FOO": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "tag": {
+          "type": "string",
+          "enum": [
+            "AnOtHeR"
+          ]
+        }
+      },
+      "required": [
+        "BAR_FOO",
+        "tag"
+      ],
+      "description": "Another thing."
+    },
+    {
+      "type": "string",
+      "enum": [
+        "constant"
+      ],
+      "description": "A constant string."
+    },
+    {
+      "type": "string",
+      "description": "An untagged string."
+    },
+    {
+      "type": "null"
+    }
+  ]
+}

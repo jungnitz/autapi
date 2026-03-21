@@ -1,0 +1,11 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "UsingTupleStruct::deserialize_missing()"
+---
+Some(
+    UsingTupleStruct(
+        Nullable(
+            None,
+        ),
+    ),
+)

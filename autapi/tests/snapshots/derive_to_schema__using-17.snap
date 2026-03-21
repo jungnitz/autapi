@@ -1,0 +1,11 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "UsingEnum::deserialize_missing()"
+---
+Some(
+    Tuple(
+        Nullable(
+            None,
+        ),
+    ),
+)

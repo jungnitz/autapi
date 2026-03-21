@@ -1,0 +1,18 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "NullableField::schema(&mut Registry::default())"
+---
+{
+  "type": "object",
+  "properties": {
+    "field": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "field"
+  ]
+}

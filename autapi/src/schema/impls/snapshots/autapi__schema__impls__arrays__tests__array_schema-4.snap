@@ -1,0 +1,9 @@
+---
+source: autapi/src/schema/impls/arrays.rs
+expression: "SerdeAdapter(vec![1, 2, 3])"
+---
+[
+  1,
+  2,
+  3
+]

@@ -1,0 +1,7 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "TestReferenced::schema(&mut Registry::default())"
+---
+{
+  "$ref": "#/components/schemas/Referenced"
+}

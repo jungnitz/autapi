@@ -1,0 +1,8 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "UnitStruct::schema(&mut Registry::default())"
+---
+{
+  "type": "null",
+  "description": "A unit struct."
+}

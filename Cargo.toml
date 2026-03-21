@@ -1,0 +1,35 @@
+[workspace]
+members = ["autapi", "autapi-macros"]
+resolver = "2"
+
+[workspace.package]
+edition = "2024"
+license = "MIT"
+readme = "README.md"
+
+[workspace.dependencies]
+autapi-macros = { path = "autapi-macros", version = "0.0.1" }
+
+axum = { version = "0.8", default-features = false }
+axum-extra = { version = "0.12", default-features = false }
+serde = { version = "1.0", default-features = false, features = ["std", "derive"] }
+serde_json = { version = "1.0", default-features = false }
+serde-value = { version = "0.7", default-features = false }
+serde_with = { version = "3.15.1", default-features = false }
+convert_case = { version = "0.10", default-features = false }
+typeid = { version = "1.0" }
+insta = { version = "1.44", features = ["json"] }
+http = { version = "1.4" }
+pastey = { version = "0.2" }
+mime = { version = "0.3" }
+tokio = { version = "1.48" }
+tower = { version = "0.5", default-features = false }
+
+chrono = { version = "0.4", default-features = false }
+uuid = { version = "1.19", default-features = false }
+url = { version = "2.5", default-features = false }
+
+darling = "0.23"
+proc-macro2 = "1"
+quote = "1"
+syn = "2"

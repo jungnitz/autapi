@@ -1,0 +1,8 @@
+---
+source: autapi/src/schema/impls/maps.rs
+expression: "SerdeAdapter(BTreeMap::<&str, i32>::from_iter([(\"one\", 1), (\"two\", 2)]))"
+---
+{
+  "one": 1,
+  "two": 2
+}

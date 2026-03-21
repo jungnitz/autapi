@@ -1,0 +1,7 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "SerdeAdapter(NullableField { field: String::from(\"str\") })"
+---
+{
+  "field": "str"
+}

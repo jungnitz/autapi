@@ -1,0 +1,7 @@
+---
+source: autapi/src/openapi/mod.rs
+expression: "License::new(\"GPL\".to_owned())"
+---
+{
+  "name": "GPL"
+}

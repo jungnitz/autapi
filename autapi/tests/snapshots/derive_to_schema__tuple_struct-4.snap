@@ -1,0 +1,8 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "TestInlinedInline::schema(&mut Registry::default())"
+---
+{
+  "type": "boolean",
+  "description": "An always inlined value."
+}

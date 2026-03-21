@@ -1,0 +1,5 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: SerdeAdapter(UsingTupleStruct(Nullable(Some(42))))
+---
+42

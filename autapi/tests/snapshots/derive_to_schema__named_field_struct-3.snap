@@ -1,0 +1,25 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "serde_json::from_value::<SerdeAdapter<Fields>>(json!({\n    \"Foo\": 42, \"baz\": \"I_AM_BAZ!\", \"Type\": true, \"ReferencedOptional\": false,\n    \"Inlined\": true\n}))"
+---
+Ok(
+    SerdeAdapter(
+        Fields {
+            foo: 42,
+            bar: "I_AM_BAZ!",
+            type: true,
+            referenced_optional: OptionalValue(
+                Some(
+                    false,
+                ),
+            ),
+            referenced_optional_inline: OptionalValue(
+                None,
+            ),
+            inlined: Inlined(
+                true,
+            ),
+            skippo: 0.0,
+        },
+    ),
+)

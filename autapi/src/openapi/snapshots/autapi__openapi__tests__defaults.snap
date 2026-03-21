@@ -1,0 +1,11 @@
+---
+source: autapi/src/openapi/mod.rs
+expression: "OpenApi::new(\"3.0.0\".to_owned(), Info::new(\"Title\".to_owned()))"
+---
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Title",
+    "version": ""
+  }
+}

@@ -1,0 +1,15 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "serde_json::from_value::<SerdeAdapter<UseEnum>>(json!({}))"
+---
+Ok(
+    SerdeAdapter(
+        UseEnum {
+            value: Thing(
+                OptionalValue(
+                    None,
+                ),
+            ),
+        },
+    ),
+)

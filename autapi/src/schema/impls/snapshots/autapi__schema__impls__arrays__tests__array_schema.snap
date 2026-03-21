@@ -1,0 +1,10 @@
+---
+source: autapi/src/schema/impls/arrays.rs
+expression: "Vec::<bool>::schema(&mut Registry::default())"
+---
+{
+  "type": "array",
+  "items": {
+    "type": "boolean"
+  }
+}

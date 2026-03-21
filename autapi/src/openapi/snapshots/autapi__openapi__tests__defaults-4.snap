@@ -1,0 +1,7 @@
+---
+source: autapi/src/openapi/mod.rs
+expression: "Server::new(\"/url\".to_owned())"
+---
+{
+  "url": "/url"
+}

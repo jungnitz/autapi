@@ -1,0 +1,8 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "SerdeAdapter(Enum::NamedFields { foo_bar: 32 })"
+---
+{
+  "tag": "namedFields",
+  "FooBar": 32
+}

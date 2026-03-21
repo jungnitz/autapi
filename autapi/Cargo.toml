@@ -1,0 +1,46 @@
+[package]
+name = "autapi"
+version = "0.0.1"
+edition.workspace = true
+license.workspace = true
+readme.workspace = true
+
+[features]
+default = [
+    "tokio",
+    "http1",
+    "query",
+]
+
+tokio = ["axum/tokio"]
+http1 = ["axum/http1"]
+http2 = ["axum/http2"]
+
+query = ["dep:axum-extra", "axum-extra?/query"]
+
+chrono = ["dep:chrono"]
+uuid = ["dep:uuid"]
+url = ["dep:url"]
+
+[dependencies]
+autapi-macros = { workspace = true }
+axum = { workspace = true, features = ["json"] }
+axum-extra = { workspace = true, optional = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde-value = { workspace = true }
+typeid = { workspace = true }
+serde_with = { workspace = true, features = ["macros"] }
+http = { workspace = true }
+pastey = { workspace = true }
+mime = { workspace = true }
+tower = { workspace = true }
+
+chrono = { workspace = true, optional = true, features = ["serde"] }
+uuid = { workspace = true, optional = true, features = ["serde"] }
+url = { workspace = true, optional = true, features = ["serde"] }
+
+[dev-dependencies]
+insta = { workspace = true }
+tokio = { workspace = true, features = ["rt-multi-thread"] }
+axum = { workspace = true, features = ["tokio", "http1"] }

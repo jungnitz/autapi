@@ -1,0 +1,14 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "UsingStruct::schema(&mut Registry::default())"
+---
+{
+  "type": "object",
+  "properties": {
+    "value": {
+      "type": "integer",
+      "format": "int64",
+      "description": "Optional in schema"
+    }
+  }
+}
