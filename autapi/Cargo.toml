@@ -1,6 +1,8 @@
 [package]
 name = "autapi"
 version = "0.0.1"
+description = "Automatic OpenAPI specification from function signatures "
+repository.workspace = true
 edition.workspace = true
 license.workspace = true
 readme.workspace = true

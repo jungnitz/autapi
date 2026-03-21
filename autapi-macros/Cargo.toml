@@ -1,6 +1,8 @@
 [package]
 name = "autapi-macros"
 version = "0.0.1"
+description = "Macros for autapi"
+repository.workspace = true
 edition.workspace = true
 license.workspace = true
 readme.workspace = true
