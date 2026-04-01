@@ -140,6 +140,7 @@ pub fn endpoint(attr: TokenStream, mut input: ItemFn) -> TokenStream {
                             Err(err) => return IntoResponse::into_response(err),
                         };
                     )*
+                    #[allow(clippy::unused_async)]
                     #input
                     IntoResponse::into_response(
                         #fn_name(#(#arg_names),*).await
