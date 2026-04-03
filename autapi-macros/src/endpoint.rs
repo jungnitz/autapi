@@ -84,7 +84,7 @@ pub fn endpoint(attr: TokenStream, mut input: ItemFn) -> TokenStream {
         (Some(quote!(V)), quote!(V))
     };
 
-    let operation_name = &input.sig.ident;
+    let operation_name = input.sig.ident.to_string();
     quote! {
         #[derive(Clone)]
         #[allow(non_camel_case_types)]
