@@ -38,7 +38,15 @@ pub trait Endpoint<S, V>: Clone + Send + Sync + Sized + 'static {
     /// Therefore, it should not change during the lifetime of a value implementing this trait.
     fn method(&self) -> http::Method;
 
+    /// Returns the operation id of this endpoint.
+    fn operation_id(&self) -> Cow<'static, str>;
+
     /// Generates the OpenAPI description for this endpoint.
+    ///
+    /// Note that the operation id returned in the `Operation` of this method should not be set or
+    /// equivalent to the [`operation_id`](Self::operation_id).
+    /// Users of this method should always override the operation id returned in the `Operation`
+    /// with the one returned by [`operation_id`](Self::operation_id).
     fn openapi(&self, registry: &mut Registry) -> Operation;
 
     /// Handle a request directed at this endpoint.
@@ -92,6 +100,9 @@ where
     }
     fn method(&self) -> http::Method {
         self.endpoint.method()
+    }
+    fn operation_id(&self) -> Cow<'static, str> {
+        self.endpoint.operation_id()
     }
     fn openapi(&self, registry: &mut Registry) -> Operation {
         self.endpoint.openapi(registry)

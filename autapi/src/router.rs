@@ -28,7 +28,9 @@ where
         let method = endpoint.method();
         let filter = MethodFilter::try_from(endpoint.method())
             .expect("a matching method filter should exist");
-        let operation = endpoint.openapi(&mut self.registry);
+        let operation = endpoint
+            .openapi(&mut self.registry)
+            .with_operation_id(endpoint.operation_id());
         self.modify_axum(|router| {
             router.route(
                 path.as_ref(),

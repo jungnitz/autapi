@@ -76,6 +76,10 @@ where
         self.0.method()
     }
 
+    fn operation_id(&self) -> std::borrow::Cow<'static, str> {
+        self.0.operation_id()
+    }
+
     fn openapi(&self, registry: &mut crate::Registry) -> crate::openapi::Operation {
         self.0.openapi(registry)
     }

@@ -33,7 +33,7 @@ pub fn endpoint(attr: TokenStream, mut input: ItemFn) -> TokenStream {
         ReturnType::Type(_, t) => t.to_token_stream(),
     };
     let docs = DocAttr::from(input.attrs.as_slice());
-    let description_mod = get_description_modifier(&args, &docs, &input);
+    let description_mod = get_description_modifier(&args, &docs);
 
     // Helper variables
     let fn_name = &input.sig.ident;
@@ -84,6 +84,7 @@ pub fn endpoint(attr: TokenStream, mut input: ItemFn) -> TokenStream {
         (Some(quote!(V)), quote!(V))
     };
 
+    let operation_name = &input.sig.ident;
     quote! {
         #[derive(Clone)]
         #[allow(non_camel_case_types)]
@@ -103,6 +104,9 @@ pub fn endpoint(attr: TokenStream, mut input: ItemFn) -> TokenStream {
                 }
                 fn method(&self) -> _autapi::http::Method {
                     _autapi::http::Method::#method
+                }
+                fn operation_id(&self) -> std::borrow::Cow<'static, str> {
+                    std::borrow::Cow::Borrowed(#operation_name)
                 }
                 fn openapi(
                     &self,
@@ -151,14 +155,8 @@ pub fn endpoint(attr: TokenStream, mut input: ItemFn) -> TokenStream {
     }
 }
 
-fn get_description_modifier(args: &Args, docs: &DocAttr, input: &ItemFn) -> TokenStream {
+fn get_description_modifier(args: &Args, docs: &DocAttr) -> TokenStream {
     let mut description_mod = TokenStream::new();
-
-    let operation_name = input.sig.ident.to_string();
-    quote! {
-        operation.operation_id.get_or_insert_with(|| #operation_name.to_owned());
-    }
-    .to_tokens(&mut description_mod);
 
     // handle openapi operation tags
     if let Some(tags) = &args.tags {
