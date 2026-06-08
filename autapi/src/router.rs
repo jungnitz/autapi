@@ -157,6 +157,12 @@ where
             base: make_path(&self.base, base).into(),
         }
     }
+    pub fn as_owned(&mut self) -> NestedRouter<'_, S> {
+        NestedRouter {
+            router: self.router,
+            base: Cow::Borrowed(&self.base),
+        }
+    }
 }
 
 fn make_path(base: &str, path: &str) -> String {
