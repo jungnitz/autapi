@@ -238,18 +238,17 @@ fn schema_ref_from_schema_ref(
 ) -> SchemaExpr {
     let ty = schema.schema_type();
     let required = schema.required_bool();
-    let original = Some(quote!(<#ty as _autapi::schema::ToSchema>::Original));
     let mut schema_expr = if inline.is_present() {
         SchemaExpr {
             schema: quote!(<#ty as _autapi::schema::ToSchema>::schema(registry)),
             required,
-            original,
+            original: None,
         }
     } else {
         SchemaExpr {
             schema: quote!(<#ty as _autapi::schema::ToSchema>::schema_ref(registry)),
             required,
-            original,
+            original: None,
         }
     };
     let schema = &mut schema_expr.schema;
