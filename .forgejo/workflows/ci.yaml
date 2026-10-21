@@ -1,0 +1,52 @@
+name: ci
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+jobs:
+  fmt:
+    runs-on: docker
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install Rust
+        uses: https://github.com/dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt
+      - run: cargo fmt --all --check
+  test:
+    runs-on: docker
+    strategy:
+      matrix:
+        toolchain: [1.96.0, stable, beta, nightly]
+        args: ["--no-default-features", "", "--all-features"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install Rust
+        uses: https://github.com/dtolnay/rust-toolchain@v1
+        with:
+          toolchain: ${{ matrix.toolchain }}
+      - run: cargo build --verbose ${{ matrix.args }}
+      - run: cargo test --verbose ${{ matrix.args }}
+  doc:
+    runs-on: docker
+    strategy:
+      matrix:
+        args: ["--no-default-features", "", "--all-features"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install Rust
+        uses: https://github.com/dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
+      - run: RUSTDOCFLAGS="-D warnings" cargo doc ${{ matrix.args }}
