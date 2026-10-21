@@ -1,6 +1,6 @@
 # autapi
 
-[![Build Status](https://codeberg.org/jungnik/autapi/badges/workflows/ci.yaml/badge)](https://codeberg.org/jungnik/autapi/actions)
+[![Build Status](https://codeberg.org/jungnik/autapi/badges/workflows/ci.yaml/badge.svg)](https://codeberg.org/jungnik/autapi/actions)
 ![rustc 1.88.0+](https://img.shields.io/badge/rustc-1.88.0+-lightgray.svg)
 
 <small>
