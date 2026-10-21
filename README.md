@@ -1,5 +1,8 @@
 # autapi
 
+[![Build Status](https://codeberg.org/jungnik/autapi/badges/workflows/ci.yaml/badge)](https://codeberg.org/jungnik/autapi/actions)
+![rustc 1.88.0+](https://img.shields.io/badge/rustc-1.88.0+-lightgray.svg)
+
 <small>
 
 _autapi_ is still very much in development.
@@ -23,10 +26,10 @@ This crate provides an opinionated approach to solving this problem by
 
 - extracting all OpenAPI metadata from the function signature of your endpoints in an extensible way,
 - defining new serialization and deserialization traits and derive macros that
-    - allow overriding the default _serde_ implementation of external types
-    - clearly separate between whether a value is nullable or optional and most importantly
-    - **guarantee** that the generated JSON / OpenAPI schema is equivalent to the serialization or deserialization
-      implementation (so long as all manual implementations of `ToSchema` are correct)
+  - allow overriding the default _serde_ implementation of external types
+  - clearly separate between whether a value is nullable or optional and most importantly
+  - **guarantee** that the generated JSON / OpenAPI schema is equivalent to the serialization or deserialization
+    implementation (so long as all manual implementations of `ToSchema` are correct)
 
 For example, a simple TODO API with required authentication might look something like this:
 
@@ -87,9 +90,7 @@ async fn main() {
   "paths": {
     "/todos": {
       "post": {
-        "tags": [
-          "todo"
-        ],
+        "tags": ["todo"],
         "summary": "Create a TODO",
         "operationId": "create_todo",
         "requestBody": {
@@ -188,9 +189,7 @@ async fn main() {
             "type": "string"
           }
         },
-        "required": [
-          "title"
-        ],
+        "required": ["title"],
         "description": "A TODO with title and body"
       }
     }

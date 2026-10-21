@@ -22,7 +22,7 @@ jobs:
     runs-on: docker
     strategy:
       matrix:
-        toolchain: [1.96.0, stable, beta, nightly]
+        toolchain: [1.88.0, stable, beta, nightly]
         args: ["--no-default-features", "", "--all-features"]
     steps:
       - name: Checkout repository
