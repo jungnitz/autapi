@@ -231,7 +231,7 @@ fn enum_optional() {
         value: Enum::Str {
             val: "val_string".to_owned()
         }
-    }))
+    }));
 }
 
 #[test]

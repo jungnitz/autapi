@@ -8,11 +8,7 @@ license.workspace = true
 readme.workspace = true
 
 [features]
-default = [
-    "tokio",
-    "http1",
-    "query",
-]
+default = ["tokio", "http1", "query"]
 
 tokio = ["axum/tokio"]
 http1 = ["axum/http1"]
@@ -23,6 +19,10 @@ query = ["dep:axum-extra", "axum-extra?/query"]
 chrono = ["dep:chrono"]
 uuid = ["dep:uuid"]
 url = ["dep:url"]
+
+[[example]]
+name = "todo"
+required-features = ["tokio", "http1"]
 
 [dependencies]
 autapi-macros = { workspace = true }
