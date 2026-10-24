@@ -40,9 +40,6 @@ impl Registry {
     pub fn resolve_schema<'a>(&'a self, schema: &'a MaybeRef<Schema>) -> Option<&'a Schema> {
         self.components().resolve_schema(schema)
     }
-    pub fn schema_by_name(&self, name: &str) -> Option<&MaybeRef<Schema>> {
-        self.components().schemas.get(name)
-    }
     pub fn components(&self) -> &Components {
         &self.openapi.components
     }
