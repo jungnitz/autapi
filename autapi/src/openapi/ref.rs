@@ -9,6 +9,46 @@ pub enum MaybeRef<T> {
     T(T),
 }
 
+impl<T> MaybeRef<T> {
+    pub fn into_ref(self) -> Option<Ref> {
+        match self {
+            Self::Ref(r) => Some(r),
+            _ => None,
+        }
+    }
+    pub fn as_ref(&self) -> Option<&Ref> {
+        match self {
+            Self::Ref(r) => Some(r),
+            _ => None,
+        }
+    }
+    pub fn as_ref_mut(&mut self) -> Option<&mut Ref> {
+        match self {
+            Self::Ref(r) => Some(r),
+            _ => None,
+        }
+    }
+
+    pub fn into_inner(self) -> Option<T> {
+        match self {
+            Self::T(t) => Some(t),
+            _ => None,
+        }
+    }
+    pub fn as_inner(&self) -> Option<&T> {
+        match self {
+            Self::T(t) => Some(t),
+            _ => None,
+        }
+    }
+    pub fn as_inner_mut(&mut self) -> Option<&mut T> {
+        match self {
+            Self::T(t) => Some(t),
+            _ => None,
+        }
+    }
+}
+
 impl<T> From<T> for MaybeRef<T> {
     fn from(value: T) -> Self {
         Self::T(value)
