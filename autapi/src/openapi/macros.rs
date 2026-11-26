@@ -10,7 +10,7 @@ macro_rules! define_openapi_spec_object {
         }
     ) => {
         #[serde_with::skip_serializing_none]
-        #[derive(PartialEq, Eq, Clone, serde::Serialize, serde::Deserialize)]
+        #[derive(Debug, PartialEq, Eq, Clone, serde::Serialize, serde::Deserialize)]
         #[serde(rename_all = "camelCase")]
         #[non_exhaustive]
         $(#[$attr])*

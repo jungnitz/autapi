@@ -1,0 +1,21 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "Formatted::schema(&mut Registry::default())"
+---
+{
+  "type": "object",
+  "properties": {
+    "custom": {
+      "type": "string",
+      "format": "custom-format"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri"
+    }
+  },
+  "required": [
+    "url",
+    "custom"
+  ]
+}

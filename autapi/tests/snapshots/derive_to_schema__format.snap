@@ -1,0 +1,10 @@
+---
+source: autapi/tests/derive_to_schema.rs
+expression: "Email::schema(&mut Registry::default())"
+---
+{
+  "type": "string",
+  "format": "idn-email",
+  "maxLength": 254,
+  "description": "An email address."
+}

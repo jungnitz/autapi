@@ -1,6 +1,7 @@
 use autapi::{
     Registry,
     adapters::SerdeAdapter,
+    openapi::Format,
     schema::{Nullable, SchemaDeserialize, SchemaSerialize, ToSchema, Validate, ValidateStr},
 };
 use insta::{assert_debug_snapshot, assert_json_snapshot};
@@ -527,6 +528,35 @@ fn validation_pattern() {
             .to_string(),
         "`optional`: must match the pattern `^[0-9]+$`"
     );
+}
+
+#[test]
+fn format() {
+    /// An email address.
+    #[derive(Debug, ToSchema)]
+    #[schema(format = "idn-email", max_length = 254)]
+    struct Email(String);
+
+    #[derive(Debug, ToSchema)]
+    struct Formatted {
+        #[schema(format = "uri")]
+        url: String,
+        #[schema(format = "custom-format")]
+        custom: String,
+    }
+
+    assert_json_snapshot!(Email::schema(&mut Registry::default()));
+    assert_eq!(
+        Email::schema(&mut Registry::default())
+            .into_inner()
+            .unwrap()
+            .format,
+        Some(Format::IdnEmail)
+    );
+    assert_json_snapshot!(Formatted::schema(&mut Registry::default()));
+
+    // the format is not validated
+    assert!(serde_json::from_value::<SerdeAdapter<Email>>(json!("not an email")).is_ok());
 }
 
 #[test]

@@ -92,7 +92,7 @@ impl Schema {
     }
 }
 
-#[derive(PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum ArrayItems {
     False,
     Schema(Box<MaybeRef<Schema>>),
@@ -148,7 +148,7 @@ impl<'de> Deserialize<'de> for ArrayItems {
     }
 }
 
-#[derive(PartialEq, Eq, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SchemaType {
     Single(Type),
@@ -185,7 +185,7 @@ impl From<Type> for SchemaType {
     }
 }
 
-#[derive(PartialEq, Eq, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[non_exhaustive]
 pub enum Type {
@@ -199,7 +199,7 @@ pub enum Type {
 }
 
 /// A subset of the [OpenAPI Format Registry](https://spec.openapis.org/registry/format/)
-#[derive(PartialEq, Eq, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 #[non_exhaustive]
 pub enum Format {
@@ -266,7 +266,7 @@ pub enum Format {
 }
 
 #[skip_serializing_none]
-#[derive(PartialEq, Eq, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[non_exhaustive]
 pub struct Discriminator {

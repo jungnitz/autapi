@@ -131,6 +131,7 @@ pub fn derive_response(attr: TokenStream) -> TokenStream {
 /// | `write_only` | Mark the schema as write-only (only sent in requests). |
 /// | `example = expr` | An example value. The expression is serialized via `SchemaSerialize`, e.g. `example = "foo"` or `example = Todo::example()`. |
 /// | `examples = [expr, ...]` | Multiple example values, serialized like `example`. |
+/// | `format = "name"` | The format of the schema, e.g. `format = "email"` (see the [OpenAPI Format Registry](https://spec.openapis.org/registry/format/)). This is an annotation only and is not validated, use validation attributes such as `pattern` to enforce it. |
 ///
 /// For fields whose schema is a reference, only `description` is applied (as a sibling of
 /// `$ref`).

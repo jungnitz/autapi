@@ -379,7 +379,7 @@ macros::define_openapi_spec_object! {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 #[non_exhaustive]
 pub enum ParameterIn {
@@ -638,7 +638,7 @@ impl SecurityScheme {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase", tag = "type")]
 #[non_exhaustive]
 #[expect(clippy::large_enum_variant)]
@@ -650,7 +650,7 @@ pub enum SecuritySchemeType {
     OpenIdConnect(OpenIdConnectSecurityScheme),
 }
 
-#[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase", tag = "in", content = "name")]
 #[non_exhaustive]
 pub enum ApiKeySecurityScheme {

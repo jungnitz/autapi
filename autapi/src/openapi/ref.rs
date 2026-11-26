@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::openapi::macros::define_openapi_spec_object;
 
-#[derive(PartialEq, Eq, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MaybeRef<T> {
     Ref(Ref),

@@ -116,6 +116,7 @@ pub struct SchemaMetaAttrs {
     pub deprecated: Flag,
     pub read_only: Flag,
     pub write_only: Flag,
+    pub format: Option<LitStr>,
     pub example: Option<PreserveStringExpr>,
     pub examples: Option<ExprsMeta>,
 }
@@ -128,6 +129,7 @@ impl SchemaMetaAttrs {
             deprecated,
             read_only,
             write_only,
+            format,
             example,
             examples,
         } = self;
@@ -136,6 +138,7 @@ impl SchemaMetaAttrs {
             || deprecated.is_present()
             || read_only.is_present()
             || write_only.is_present()
+            || format.is_some()
             || example.is_some()
             || examples.is_some()
     }

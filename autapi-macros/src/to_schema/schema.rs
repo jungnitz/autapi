@@ -343,6 +343,7 @@ fn with_metadata(
         deprecated,
         read_only,
         write_only,
+        format,
         example,
         examples,
     }: &SchemaMetaAttrs,
@@ -362,6 +363,13 @@ fn with_metadata(
         write_only.is_present().then_some(true).into_iter(),
         example.iter().map(|expr| example_expr(&expr.0)),
     );
+    let format = format.iter().map(|format| {
+        quote!(
+            _autapi::private::serde_json::from_value::<_autapi::openapi::Format>(
+                _autapi::private::serde_json::Value::String(::std::string::String::from(#format))
+            ).expect("any string should be a valid format")
+        )
+    });
     let description2 = description.clone();
     let example_exprs = examples
         .iter()
@@ -375,6 +383,7 @@ fn with_metadata(
                     #(.with_deprecated(#deprecated))*
                     #(.with_read_only(#read_only))*
                     #(.with_write_only(#write_only))*
+                    #(.with_format(#format))*
                     #(.with_example(#example))*
                     #(.with_examples(vec![#example_exprs]))*
             ),
