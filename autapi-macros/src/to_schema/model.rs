@@ -8,7 +8,7 @@ use crate::{
         SchemaMetaAttrs, TupleEnumVariantAttrs, TupleStructAttrs, UnitEnumVariantAttrs,
         UnitEnumVariantAttrsInner, UnitStructAttrs,
     },
-    utils::{Case, Either, GenericsHelper, get_single_unnamed_field, ident_to_lit},
+    utils::{Case, Either, GenericsHelper, NumberMeta, get_single_unnamed_field, ident_to_lit},
 };
 use darling::{FromDeriveInput, FromField, FromVariant, util::Flag};
 use proc_macro2::{Span, TokenStream};
@@ -357,12 +357,20 @@ impl NamedField {
             inner,
         } = NamedFieldAttrs::from_field(field).map_err(darling::Error::write_errors)?;
         let schema_name = rename.unwrap_or_else(|| ident_to_lit(ident, ctx.rename_all_fields));
+        let schema = SchemaRef::from_syn(ty, &attrs, inner)?;
+        if skip.is_present() && schema.validation.any_set() {
+            return Err(syn::Error::new(
+                ident.span(),
+                "validation constraints cannot be used on skipped fields",
+            )
+            .into_compile_error());
+        }
         Ok(Self {
             ident: ident.clone(),
             schema_name,
 
             skip,
-            schema: SchemaRef::from_syn(ty, &attrs, inner)?,
+            schema,
         })
     }
 }
@@ -377,6 +385,8 @@ pub struct SchemaRef {
     pub using: Option<Type>,
     /// Meta-information for the schema
     pub meta: SchemaMetaAttrs,
+    /// Validation constraints for values
+    pub validation: Validation,
 }
 
 impl SchemaRef {
@@ -388,9 +398,36 @@ impl SchemaRef {
             using,
             nullable,
             optional,
+            minimum,
+            maximum,
+            exclusive_minimum,
+            exclusive_maximum,
+            multiple_of,
+            min_length,
+            max_length,
+            min_items,
+            max_items,
+            min_properties,
+            max_properties,
+            pattern,
             mut meta,
         }: FieldAttrs,
     ) -> Result<Self, TokenStream> {
+        let validation = Validation {
+            minimum,
+            maximum,
+            exclusive_minimum,
+            exclusive_maximum,
+            multiple_of,
+            min_length,
+            max_length,
+            min_items,
+            max_items,
+            min_properties,
+            max_properties,
+            pattern,
+        };
+        validation.check()?;
         meta.description = meta.description.or_else(|| doc.to_lines());
         if nullable.is_present() as u8 + optional.is_present() as u8 + using.is_some() as u8 > 1 {
             return Err(syn::Error::new(
@@ -413,6 +450,7 @@ impl SchemaRef {
             inline,
             using,
             meta,
+            validation,
         })
     }
 
@@ -459,6 +497,100 @@ impl SchemaRef {
             )),
             None => Either::Right(ser),
         }
+    }
+}
+
+/// Validation constraints for the values of a `SchemaRef`.
+pub struct Validation {
+    pub minimum: Option<NumberMeta>,
+    pub maximum: Option<NumberMeta>,
+    pub exclusive_minimum: Option<NumberMeta>,
+    pub exclusive_maximum: Option<NumberMeta>,
+    pub multiple_of: Option<NumberMeta>,
+    pub min_length: Option<u64>,
+    pub max_length: Option<u64>,
+    pub min_items: Option<u64>,
+    pub max_items: Option<u64>,
+    pub min_properties: Option<u64>,
+    pub max_properties: Option<u64>,
+    pub pattern: Option<LitStr>,
+}
+
+impl Validation {
+    pub fn any_set(&self) -> bool {
+        let Self {
+            minimum,
+            maximum,
+            exclusive_minimum,
+            exclusive_maximum,
+            multiple_of,
+            min_length,
+            max_length,
+            min_items,
+            max_items,
+            min_properties,
+            max_properties,
+            pattern,
+        } = self;
+        minimum.is_some()
+            || maximum.is_some()
+            || exclusive_minimum.is_some()
+            || exclusive_maximum.is_some()
+            || multiple_of.is_some()
+            || min_length.is_some()
+            || max_length.is_some()
+            || min_items.is_some()
+            || max_items.is_some()
+            || min_properties.is_some()
+            || max_properties.is_some()
+            || pattern.is_some()
+    }
+
+    /// Rejects constraints that can never be satisfied or are invalid.
+    fn check(&self) -> Result<(), TokenStream> {
+        let error =
+            |message: &str| Err(syn::Error::new(Span::call_site(), message).into_compile_error());
+        // pairs of (lower, upper) bounds and whether the range is empty if both are equal
+        for (lower, upper, exclusive) in [
+            (self.minimum, self.maximum, false),
+            (self.minimum, self.exclusive_maximum, true),
+            (self.exclusive_minimum, self.maximum, true),
+            (self.exclusive_minimum, self.exclusive_maximum, true),
+        ] {
+            if let (Some(lower), Some(upper)) = (lower, upper)
+                && (lower.as_f64() > upper.as_f64()
+                    || exclusive && lower.as_f64() == upper.as_f64())
+            {
+                return error("the bounds do not allow any value");
+            }
+        }
+        if let Some(multiple_of) = self.multiple_of
+            && multiple_of.as_f64() <= 0.0
+        {
+            return error("`multiple_of` must be greater than 0");
+        }
+        for (min, max, name) in [
+            (self.min_length, self.max_length, "length"),
+            (self.min_items, self.max_items, "items"),
+            (self.min_properties, self.max_properties, "properties"),
+        ] {
+            if let (Some(min), Some(max)) = (min, max)
+                && min > max
+            {
+                return error(&format!(
+                    "`min_{name}` must not be greater than `max_{name}`"
+                ));
+            }
+        }
+        if let Some(pattern) = &self.pattern
+            && let Err(err) = regex::Regex::new(&pattern.value())
+        {
+            return Err(
+                syn::Error::new(pattern.span(), format!("invalid regex: {err}"))
+                    .into_compile_error(),
+            );
+        }
+        Ok(())
     }
 }
 

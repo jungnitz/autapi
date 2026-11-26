@@ -3,7 +3,7 @@ use syn::{Generics, Ident, LitStr, Type};
 
 use crate::{
     doc_attr::DocAttr,
-    utils::{Case, ExprsMeta, PreserveStringExpr},
+    utils::{Case, ExprsMeta, NumberMeta, PreserveStringExpr},
 };
 
 #[derive(Debug, Clone, FromDeriveInput)]
@@ -90,6 +90,21 @@ pub struct FieldAttrs {
     pub using: Option<String>,
     pub optional: Flag,
     pub nullable: Flag,
+
+    // validation
+    pub minimum: Option<NumberMeta>,
+    pub maximum: Option<NumberMeta>,
+    pub exclusive_minimum: Option<NumberMeta>,
+    pub exclusive_maximum: Option<NumberMeta>,
+    pub multiple_of: Option<NumberMeta>,
+    pub min_length: Option<u64>,
+    pub max_length: Option<u64>,
+    pub min_items: Option<u64>,
+    pub max_items: Option<u64>,
+    pub min_properties: Option<u64>,
+    pub max_properties: Option<u64>,
+    pub pattern: Option<LitStr>,
+
     #[darling(flatten)]
     pub meta: SchemaMetaAttrs,
 }

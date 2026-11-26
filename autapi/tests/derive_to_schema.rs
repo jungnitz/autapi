@@ -1,7 +1,7 @@
 use autapi::{
     Registry,
     adapters::SerdeAdapter,
-    schema::{Nullable, SchemaDeserialize, SchemaSerialize, ToSchema},
+    schema::{Nullable, SchemaDeserialize, SchemaSerialize, ToSchema, Validate, ValidateStr},
 };
 use insta::{assert_debug_snapshot, assert_json_snapshot};
 use serde_json::json;
@@ -363,4 +363,219 @@ pub fn using() {
     assert_json_snapshot!(SerdeAdapter(NullableField {
         field: String::from("str")
     }));
+}
+
+#[test]
+fn validation() {
+    /// A validated newtype.
+    #[derive(Debug, ToSchema)]
+    #[schema(min_length = 3, max_length = 8)]
+    struct Username(String);
+
+    // allows adding string constraints to fields of type `Username`
+    impl ValidateStr for Username {
+        fn validation_str(&self) -> Option<&str> {
+            Some(&self.0)
+        }
+    }
+
+    #[derive(Debug, ToSchema)]
+    struct Validated {
+        #[schema(minimum = -10, exclusive_maximum = 2.5, multiple_of = 0.5)]
+        number: f64,
+        #[schema(maximum = 100)]
+        optional: Option<u8>,
+        #[schema(min_items = 1, max_items = 2)]
+        items: Vec<bool>,
+        #[schema(min_properties = 1)]
+        map: std::collections::BTreeMap<String, bool>,
+        /// A referenced type with additional constraints
+        #[schema(max_length = 5)]
+        username: Username,
+    }
+
+    #[derive(Debug, ToSchema)]
+    #[schema(tag = "type")]
+    enum ValidatedEnum {
+        #[schema(rename = "named")]
+        Named {
+            #[schema(minimum = 0)]
+            value: i32,
+            other: i32,
+        },
+        #[schema(untagged, minimum = 1)]
+        Tuple(i32),
+    }
+
+    // schema
+    assert_json_snapshot!(Username::schema(&mut Registry::default()));
+    assert_json_snapshot!(Validated::schema(&mut Registry::default()));
+
+    // deserializing
+    let deserialize = |value| {
+        serde_json::from_value::<SerdeAdapter<Validated>>(value)
+            .map(|value| value.0)
+            .map_err(|err| err.to_string())
+    };
+    let valid = json!({
+        "number": -1.5,
+        "items": [true],
+        "map": { "a": true },
+        "username": "abcd",
+    });
+    assert!(deserialize(valid.clone()).is_ok());
+    let with = |key: &str, value: serde_json::Value| {
+        let mut object = valid.clone();
+        object[key] = value;
+        deserialize(object).unwrap_err()
+    };
+    assert_eq!(
+        with("number", json!(-10.5)),
+        "`number`: must be at least -10"
+    );
+    assert_eq!(
+        with("number", json!(2.5)),
+        "`number`: must be less than 2.5"
+    );
+    assert_eq!(
+        with("number", json!(0.3)),
+        "`number`: must be a multiple of 0.5"
+    );
+    assert_eq!(
+        with("optional", json!(101)),
+        "`optional`: must be at most 100"
+    );
+    assert_eq!(
+        with("items", json!([])),
+        "`items`: must contain at least 1 items"
+    );
+    assert_eq!(
+        with("items", json!([true, false, true])),
+        "`items`: must contain at most 2 items"
+    );
+    assert_eq!(
+        with("map", json!({})),
+        "`map`: must contain at least 1 properties"
+    );
+    // the newtype's own constraint is checked on deserializing the newtype
+    assert_eq!(
+        with("username", json!("ab")),
+        "must be at least 3 characters long"
+    );
+    assert_eq!(
+        with("username", json!("abcdef")),
+        "`username`: must be at most 5 characters long"
+    );
+
+    // validating manually
+    assert!(Username("abc".to_owned()).validate().is_ok());
+    let err = Username("a".to_owned()).validate().unwrap_err();
+    assert_eq!(err.property(), None);
+    assert_eq!(err.to_string(), "must be at least 3 characters long");
+
+    // enums
+    assert!(
+        ValidatedEnum::Named {
+            value: 0,
+            other: -1
+        }
+        .validate()
+        .is_ok()
+    );
+    assert_eq!(
+        ValidatedEnum::Named {
+            value: -1,
+            other: 0
+        }
+        .validate()
+        .unwrap_err()
+        .to_string(),
+        "`value`: must be at least 0"
+    );
+    assert!(
+        serde_json::from_value::<SerdeAdapter<ValidatedEnum>>(
+            json!({"type": "named", "value": -1, "other": 0})
+        )
+        .is_err()
+    );
+    assert!(ValidatedEnum::Tuple(1).validate().is_ok());
+    assert!(serde_json::from_value::<SerdeAdapter<ValidatedEnum>>(json!(0)).is_err());
+}
+
+#[cfg(feature = "regex")]
+#[test]
+fn validation_pattern() {
+    #[derive(Debug, ToSchema)]
+    struct Pattern {
+        #[schema(pattern = "^[a-z]+$")]
+        name: String,
+        #[schema(pattern = "^[0-9]+$")]
+        optional: Option<String>,
+    }
+
+    assert_json_snapshot!(Pattern::schema(&mut Registry::default()));
+    let deserialize = |value| serde_json::from_value::<SerdeAdapter<Pattern>>(value);
+    assert!(deserialize(json!({"name": "abc"})).is_ok());
+    assert!(deserialize(json!({"name": "abc", "optional": "123"})).is_ok());
+    assert_eq!(
+        deserialize(json!({"name": "ABC"})).unwrap_err().to_string(),
+        "`name`: must match the pattern `^[a-z]+$`"
+    );
+    assert_eq!(
+        deserialize(json!({"name": "abc", "optional": "x"}))
+            .unwrap_err()
+            .to_string(),
+        "`optional`: must match the pattern `^[0-9]+$`"
+    );
+}
+
+#[test]
+fn validation_while_deserializing() {
+    fn deserialize<T: SchemaDeserialize>(value: serde_json::Value) -> Result<T, String> {
+        serde_json::from_value::<SerdeAdapter<T>>(value)
+            .map(|value| value.0)
+            .map_err(|err| err.to_string())
+    }
+
+    // violations of one variant fall through to the next variant
+    #[derive(Debug, PartialEq, ToSchema)]
+    #[schema(untagged)]
+    enum Name {
+        #[schema(max_length = 3)]
+        Short(String),
+        Long(String),
+    }
+    assert_eq!(deserialize(json!("abc")), Ok(Name::Short("abc".to_owned())));
+    assert_eq!(
+        deserialize(json!("abcdef")),
+        Ok(Name::Long("abcdef".to_owned()))
+    );
+
+    // constraints of `using` fields apply to the `using` type, absent values are not validated
+    #[derive(Debug, ToSchema)]
+    struct Optional {
+        #[schema(optional, minimum = 1)]
+        count: u32,
+    }
+    assert_eq!(deserialize::<Optional>(json!({})).unwrap().count, 0);
+    assert_eq!(
+        deserialize::<Optional>(json!({"count": 0})).unwrap_err(),
+        "`count`: must be at least 1"
+    );
+    assert!(Optional { count: 1 }.validate().is_ok());
+    assert!(Optional { count: 0 }.validate().is_err());
+
+    // lengths are counted in characters
+    #[derive(Debug, ToSchema)]
+    #[schema(min_length = 2, max_length = 3)]
+    struct Short(String);
+    assert!(deserialize::<Short>(json!("äö")).is_ok());
+    assert_eq!(
+        deserialize::<Short>(json!("ä")).unwrap_err(),
+        "must be at least 2 characters long"
+    );
+    assert_eq!(
+        deserialize::<Short>(json!("äöüß")).unwrap_err(),
+        "must be at most 3 characters long"
+    );
 }

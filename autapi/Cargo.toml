@@ -20,6 +20,8 @@ chrono = ["dep:chrono"]
 uuid = ["dep:uuid"]
 url = ["dep:url"]
 
+regex = ["dep:regex"]
+
 [[example]]
 name = "todo"
 required-features = ["tokio", "http1"]
@@ -41,6 +43,7 @@ tower = { workspace = true }
 chrono = { workspace = true, optional = true, features = ["serde"] }
 uuid = { workspace = true, optional = true, features = ["serde"] }
 url = { workspace = true, optional = true, features = ["serde"] }
+regex = { workspace = true, optional = true }
 
 [dev-dependencies]
 insta = { workspace = true }

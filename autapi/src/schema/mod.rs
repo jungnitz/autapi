@@ -3,6 +3,7 @@ mod impls;
 mod iterator;
 mod macros;
 mod nullable;
+mod validation;
 
 use std::borrow::Cow;
 
@@ -13,7 +14,7 @@ use crate::{
     openapi::{MaybeRef, Schema},
 };
 
-pub use self::{iterator::*, nullable::*};
+pub use self::{iterator::*, nullable::*, validation::*};
 pub use autapi_macros::ToSchema;
 
 /// A type that is described with a [`Schema`].
@@ -98,8 +99,8 @@ pub trait SchemaDeserialize: Sized + ToSchema {
     /// Returns `Some(_)` with the value to be used if a property of this type is omitted or `None`
     /// if properties of this type cannot be omitted.
     ///
-    /// Therefore, if `<Self as ToSchema>::REQUIRED`, this method must return `Some(_)`, otherwise
-    /// deserialization will fail despite
+    /// Therefore, if `<Self as ToSchema>::REQUIRED == false`, this method must return `Some(_)`,
+    /// otherwise deserialization fails for omitted properties despite the schema allowing them.
     fn deserialize_missing() -> Option<Self>;
 }
 

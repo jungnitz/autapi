@@ -1,0 +1,21 @@
+---
+source: autapi/tests/derive_to_schema.rs
+assertion_line: 485
+expression: "Pattern::schema(&mut Registry::default())"
+---
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z]+$"
+    },
+    "optional": {
+      "type": "string",
+      "pattern": "^[0-9]+$"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

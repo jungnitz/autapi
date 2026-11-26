@@ -1,5 +1,8 @@
 pub mod schema;
+pub mod validation;
 
+#[cfg(feature = "regex")]
+pub use regex;
 pub use serde;
 pub use serde_json;
 

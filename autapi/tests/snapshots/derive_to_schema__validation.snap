@@ -1,0 +1,11 @@
+---
+source: autapi/tests/derive_to_schema.rs
+assertion_line: 411
+expression: "Username::schema(&mut Registry::default())"
+---
+{
+  "type": "string",
+  "maxLength": 8,
+  "minLength": 3,
+  "description": "A validated newtype."
+}

@@ -9,10 +9,10 @@ use crate::{
         attrs::SchemaMetaAttrs,
         model::{
             Enum, EnumVariant, NamedFields, NamedFieldsEnumVariant, SchemaRef, ToSchemaDeriveInput,
-            TupleEnumVariant, UnitEnumVariant,
+            TupleEnumVariant, UnitEnumVariant, Validation,
         },
     },
-    utils::{Either, ident_name},
+    utils::{Either, NumberMeta, ident_name},
 };
 
 pub fn impl_to_schema(input: &ToSchemaDeriveInput) -> TokenStream {
@@ -234,6 +234,7 @@ fn schema_ref_from_schema_ref(
         inline,
         using: _,
         meta,
+        validation,
     }: &SchemaRef,
 ) -> SchemaExpr {
     let ty = schema.schema_type();
@@ -252,8 +253,85 @@ fn schema_ref_from_schema_ref(
         }
     };
     let schema = &mut schema_expr.schema;
-    *schema = with_metadata(schema, meta);
+    *schema = with_metadata(&with_validation(schema, validation), meta);
     schema_expr
+}
+
+/// Adds the validation keywords to the given `MaybeRef<Schema>`.
+///
+/// As keywords cannot be attached to a reference itself, references are wrapped into an `allOf`.
+fn with_validation(
+    schema_ref: &TokenStream,
+    validation @ Validation {
+        minimum,
+        maximum,
+        exclusive_minimum,
+        exclusive_maximum,
+        multiple_of,
+        min_length,
+        max_length,
+        min_items,
+        max_items,
+        min_properties,
+        max_properties,
+        pattern,
+    }: &Validation,
+) -> TokenStream {
+    if !validation.any_set() {
+        return schema_ref.clone();
+    }
+    let (minimum, maximum, exclusive_minimum, exclusive_maximum, multiple_of) = (
+        minimum.map(json_number).into_iter(),
+        maximum.map(json_number).into_iter(),
+        exclusive_minimum.map(json_number).into_iter(),
+        exclusive_maximum.map(json_number).into_iter(),
+        multiple_of.map(json_number).into_iter(),
+    );
+    let (min_length, max_length, min_items, max_items, min_properties, max_properties, pattern) = (
+        min_length.iter(),
+        max_length.iter(),
+        min_items.iter(),
+        max_items.iter(),
+        min_properties.iter(),
+        max_properties.iter(),
+        pattern.iter(),
+    );
+    let keywords = quote!(
+        #(.with_minimum(#minimum))*
+        #(.with_maximum(#maximum))*
+        #(.with_exclusive_minimum(#exclusive_minimum))*
+        #(.with_exclusive_maximum(#exclusive_maximum))*
+        #(.with_multiple_of(#multiple_of))*
+        #(.with_min_length(#min_length))*
+        #(.with_max_length(#max_length))*
+        #(.with_min_items(#min_items))*
+        #(.with_max_items(#max_items))*
+        #(.with_min_properties(#min_properties))*
+        #(.with_max_properties(#max_properties))*
+        #(.with_pattern(#pattern))*
+    );
+    quote!(
+        match #schema_ref {
+            _autapi::openapi::MaybeRef::T(schema) => _autapi::openapi::MaybeRef::T(
+                schema #keywords
+            ),
+            schema @ _autapi::openapi::MaybeRef::Ref(_) => _autapi::openapi::MaybeRef::T(
+                _autapi::openapi::Schema::default().with_all_of(vec![schema]) #keywords
+            ),
+        }
+    )
+}
+
+/// Returns a `serde_json::Number` expression for the given number.
+fn json_number(number: NumberMeta) -> TokenStream {
+    let number_ty = quote!(_autapi::private::serde_json::Number);
+    match number {
+        NumberMeta::Int(n) => quote!(#number_ty::from(#n)),
+        NumberMeta::UInt(n) => quote!(#number_ty::from(#n)),
+        NumberMeta::Float(n) => {
+            quote!(#number_ty::from_f64(#n).expect("number should be finite"))
+        }
+    }
 }
 
 /// Returns a `Schema` value that contains only the given metadata.

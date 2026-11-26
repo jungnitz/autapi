@@ -16,3 +16,4 @@ proc-macro2 = { workspace = true }
 quote = { workspace = true }
 syn = { workspace = true }
 convert_case = { workspace = true }
+regex = { workspace = true }

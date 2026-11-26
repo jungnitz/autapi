@@ -3,9 +3,12 @@ use quote::{format_ident, quote};
 use syn::LitStr;
 
 use crate::{
-    to_schema::model::{
-        Enum, EnumVariant, EnumVariantCommon, NamedFields, NamedFieldsStruct, ToSchemaDeriveInput,
-        TupleStruct, UnitStruct,
+    to_schema::{
+        model::{
+            Enum, EnumVariant, EnumVariantCommon, NamedFields, NamedFieldsStruct, SchemaRef,
+            ToSchemaDeriveInput, TupleStruct, UnitStruct,
+        },
+        validate::validation_expr,
     },
     utils::GenericsHelper,
 };
@@ -80,17 +83,20 @@ fn impl_deserialize_unit_struct(_: &UnitStruct) -> DeserializeImpl {
 
 fn impl_deserialize_tuple_struct(input: &TupleStruct) -> DeserializeImpl {
     let ty = input.schema.deserialize_type();
-    let from_de = |value: TokenStream| {
-        let map = input.schema.deserialize_value(quote!(value));
-        quote!(#value.map(|value| #map).map(Self))
-    };
+    let value = input.schema.deserialize_value(quote!(value));
+    let validate = validate_de(&input.schema, None);
+    let is_valid = is_valid_de(&input.schema);
     DeserializeImpl {
-        schema_deserialize: from_de(quote!(
-            <#ty as _autapi::schema::SchemaDeserialize>::schema_deserialize(deserializer)
-        )),
-        deserialize_missing: from_de(quote!(
+        schema_deserialize: quote! {
+            let value = <#ty as _autapi::schema::SchemaDeserialize>::schema_deserialize(deserializer)?;
+            #validate
+            Ok(Self(#value))
+        },
+        deserialize_missing: quote! {
             <#ty as _autapi::schema::SchemaDeserialize>::deserialize_missing()
-        )),
+                #is_valid
+                .map(|value| Self(#value))
+        },
     }
 }
 
@@ -146,6 +152,34 @@ fn impl_deserialize_enum(input: &Enum, generics: &GenericsHelper<'_>) -> Deseria
             }
         }
     });
+    // definitions for the "replacement structs" for all tuple variants with validation, which
+    // validate while deserializing so that untagged enums try the next variant on violations
+    let validate_structs = input
+        .tuple_variants()
+        .filter(|variant| variant.schema.validation.any_set())
+        .map(|variant| {
+            let struct_name = helper_type_name(&variant.common);
+            let variant_name = &variant.common.ident;
+            let ty = variant.schema.deserialize_type();
+            let validate = validate_de(&variant.schema, None);
+            let value = variant.schema.deserialize_value(quote!(value));
+            quote! {
+                pub struct #struct_name<#gen_impl> (#enum_name<#gen_ty>) #where_clause;
+                impl <'de, #gen_impl> _autapi::private::serde::Deserialize<'de>
+                    for #struct_name<#gen_ty>
+                #where_clause
+                {
+                    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+                    where
+                        D: _autapi::private::serde::Deserializer<'de>
+                    {
+                        let value = <_autapi::adapters::SerdeAdapter<#ty> as _autapi::private::serde::Deserialize<'de>>::deserialize(deserializer)?.0;
+                        #validate
+                        Ok(Self(#enum_name::#variant_name(#value)))
+                    }
+                }
+            }
+        });
     // definitions for the "replacement enums" for all unit variants
     let deserialize_enums = input
         .unit_variants()
@@ -170,6 +204,10 @@ fn impl_deserialize_enum(input: &Enum, generics: &GenericsHelper<'_>) -> Deseria
             let struct_name = helper_type_name(&variant.common);
             quote!(#struct_name<#gen_ty>)
         }
+        EnumVariant::Tuple(variant) if variant.schema.validation.any_set() => {
+            let struct_name = helper_type_name(&variant.common);
+            quote!(#struct_name<#gen_ty>)
+        }
         EnumVariant::Tuple(variant) => {
             let ty = &variant.schema.deserialize_type();
             quote!(_autapi::adapters::SerdeAdapter<#ty>)
@@ -189,6 +227,9 @@ fn impl_deserialize_enum(input: &Enum, generics: &GenericsHelper<'_>) -> Deseria
     //    the corresponding value of type `Self`
     let variant_values = input.variants.iter().map(|variant| match variant {
         EnumVariant::NamedFields(_) => {
+            quote!(variant.0)
+        }
+        EnumVariant::Tuple(variant) if variant.schema.validation.any_set() => {
             quote!(variant.0)
         }
         EnumVariant::Tuple(variant) => {
@@ -226,6 +267,7 @@ fn impl_deserialize_enum(input: &Enum, generics: &GenericsHelper<'_>) -> Deseria
             let variant_names2 = variant_names.clone();
             quote! {
                 #(#deserialize_structs)*
+                #(#validate_structs)*
                 #(#deserialize_enums)*
 
                 #[derive(_autapi::private::serde::Deserialize)]
@@ -260,9 +302,13 @@ fn impl_deserialize_enum(input: &Enum, generics: &GenericsHelper<'_>) -> Deseria
             let transparent_names = input
                 .transparent_variants()
                 .map(|variant| &variant.common.ident);
+            // values violating constraints are skipped to try the next variant
+            let is_valid = input
+                .transparent_variants()
+                .map(|variant| is_valid_de(&variant.schema));
             quote! {
                 #(
-                    if let Some(value) = <#transparent_types as _autapi::schema::SchemaDeserialize>::deserialize_missing() {
+                    if let Some(value) = <#transparent_types as _autapi::schema::SchemaDeserialize>::deserialize_missing() #is_valid {
                         return Some(Self::#transparent_names(#transparent_values));
                     }
                 )*
@@ -313,13 +359,15 @@ fn deserialize_named_fields(
             let ty = field.schema.deserialize_type();
             let value = field.schema.deserialize_value(quote!(value));
             let missing_error_message = format!("missing property `{}`", field.schema_name.value());
-            quote!(
-                value.#ident
+            let validate = validate_de(&field.schema, Some(&field.schema_name));
+            quote!({
+                let value = value.#ident
                     .map(|value| value.0)
                     .or_else(|| <#ty as _autapi::schema::SchemaDeserialize>::deserialize_missing())
-                    .map(|value| #value)
-                    .ok_or_else(|| <D::Error as _autapi::private::serde::de::Error>::custom(#missing_error_message))?
-            )
+                    .ok_or_else(|| <D::Error as _autapi::private::serde::de::Error>::custom(#missing_error_message))?;
+                #validate
+                #value
+            })
         }
     });
     let field_names = fields.fields.iter().map(|field| &field.ident);
@@ -337,4 +385,26 @@ fn deserialize_named_fields(
             #(#field_names: #field_values,)*
         }
     })
+}
+
+/// Returns a statement validating the deserialized value `value` of the deserialize type of
+/// `schema`, returning a deserialization error on violations.
+fn validate_de(schema: &SchemaRef, property: Option<&LitStr>) -> TokenStream {
+    if !schema.validation.any_set() {
+        return quote!();
+    }
+    let validation = validation_expr(schema, quote!(&value), property);
+    quote! {
+        #validation.map_err(<D::Error as _autapi::private::serde::de::Error>::custom)?;
+    }
+}
+
+/// Returns a method call filtering an `Option` of the deserialize type of `schema` by whether the
+/// value satisfies all validation constraints.
+fn is_valid_de(schema: &SchemaRef) -> TokenStream {
+    if !schema.validation.any_set() {
+        return quote!();
+    }
+    let validation = validation_expr(schema, quote!(value), None);
+    quote!(.filter(|value| #validation.is_ok()))
 }

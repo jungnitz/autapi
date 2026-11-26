@@ -1,0 +1,55 @@
+---
+source: autapi/tests/derive_to_schema.rs
+assertion_line: 412
+expression: "Validated::schema(&mut Registry::default())"
+---
+{
+  "type": "object",
+  "properties": {
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "boolean"
+      },
+      "maxItems": 2,
+      "minItems": 1
+    },
+    "map": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "boolean"
+      },
+      "minProperties": 1
+    },
+    "number": {
+      "type": "number",
+      "format": "double",
+      "multipleOf": 0.5,
+      "exclusiveMaximum": 2.5,
+      "minimum": -10
+    },
+    "optional": {
+      "type": "integer",
+      "format": "uint8",
+      "maximum": 100
+    },
+    "username": {
+      "maxLength": 5,
+      "description": "A referenced type with additional constraints",
+      "allOf": [
+        {
+          "$ref": "#/components/schemas/Username"
+        }
+      ]
+    }
+  },
+  "required": [
+    "number",
+    "items",
+    "map",
+    "username"
+  ]
+}
